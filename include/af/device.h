@@ -286,6 +286,11 @@ extern "C" {
     /**
        \ingroup device_func_set
     */
+    AFAPI af_err af_set_default_device(const int device);
+
+    /**
+       \ingroup device_func_set
+    */
     AFAPI af_err af_get_device(int *device);
 
     /**

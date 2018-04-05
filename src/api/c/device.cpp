@@ -148,6 +148,16 @@ af_err af_set_device(const int device)
     return AF_SUCCESS;
 }
 
+af_err af_set_default_device(const int device)
+{
+    try {
+        ARG_ASSERT(0, device >= 0);
+        ARG_ASSERT(0, setDefaultDevice(device) >= 0);
+    } CATCHALL;
+
+    return AF_SUCCESS;
+}
+
 af_err af_sync(const int device)
 {
     try {

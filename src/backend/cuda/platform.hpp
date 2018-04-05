@@ -61,6 +61,8 @@ size_t getHostMemorySize();
 
 int setDevice(int device);
 
+int setDefaultDevice(int device);
+
 void sync(int device);
 
 // Returns true if the AF_SYNCHRONIZE_CALLS environment variable is set to 1
@@ -139,6 +141,10 @@ class DeviceManager
 
         friend cudaDeviceProp getDeviceProp(int device);
 
+        int getDefaultDevice();
+
+        int setDefaultDevice(int device);
+
     private:
         DeviceManager();
 
@@ -161,6 +167,8 @@ class DeviceManager
         int setActiveDevice(int device, int native = -1);
 
         int nDevices;
+        int defaultDevice;
+        std::recursive_mutex defaultDeviceMutex;
         cudaStream_t streams[MAX_DEVICES];
 
         std::unique_ptr<MemoryManager> memManager;

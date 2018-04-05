@@ -83,6 +83,11 @@ af_err af_set_device(const int device)
     return CALL(device);
 }
 
+af_err af_set_default_device(const int device)
+{
+    return CALL(device);
+}
+
 af_err af_get_device(int *device)
 {
     return CALL(device);

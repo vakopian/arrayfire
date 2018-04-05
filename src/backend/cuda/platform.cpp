@@ -289,7 +289,10 @@ std::recursive_mutex& getDriverApiMutex(int device) {
 
 int& tlocalActiveDeviceId()
 {
-    thread_local int activeDeviceId = 0;
+    thread_local int activeDeviceId = -1;
+    if (activeDeviceId == -1) {
+        activeDeviceId = DeviceManager::getInstance().getDefaultDevice();
+    }
 
     return activeDeviceId;
 }
@@ -354,6 +357,11 @@ size_t getHostMemorySize()
 int setDevice(int device)
 {
     return DeviceManager::getInstance().setActiveDevice(device);
+}
+
+int setDefaultDevice(int device)
+{
+    return DeviceManager::getInstance().setDefaultDevice(device);
 }
 
 cudaDeviceProp getDeviceProp(int device)
@@ -496,7 +504,7 @@ SparseHandle sparseHandle()
 }
 
 DeviceManager::DeviceManager()
-    : cuDevices(0), nDevices(0)
+    : cuDevices(0), nDevices(0), defaultDevice(0)
 {
     CUDA_CHECK(cudaGetDeviceCount(&nDevices));
     if (nDevices == 0)
@@ -531,6 +539,7 @@ DeviceManager::DeviceManager()
             printf("Setting default device as 0\n");
             setActiveDevice(0, cuDevices[0].nativeId);
         } else {
+            setDefaultDevice(def_device);
             setActiveDevice(def_device, cuDevices[def_device].nativeId);
         }
     }
@@ -552,6 +561,21 @@ void DeviceManager::sortDevices(sort_mode mode)
             std::stable_sort(cuDevices.begin(), cuDevices.end(), card_compare_num);
             break;
     }
+}
+
+int DeviceManager::getDefaultDevice() {
+    std::lock_guard<std::recursive_mutex> lock(defaultDeviceMutex);
+    return defaultDevice;
+}
+
+int DeviceManager::setDefaultDevice(int device) {
+    if (device < 0 || device >= cuDevices.size()) {
+        return -1;
+    }
+    std::lock_guard<std::recursive_mutex> lock(defaultDeviceMutex);
+    int oldDefaultDevice = defaultDevice;
+    defaultDevice = device;
+    return oldDefaultDevice;
 }
 
 int DeviceManager::setActiveDevice(int device, int nId)

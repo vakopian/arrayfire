@@ -92,6 +92,11 @@ namespace af
         AF_THROW(af_set_device(device));
     }
 
+    void setDefaultDevice(const int device)
+    {
+        AF_THROW(af_set_default_device(device));
+    }
+
     void deviceset(const int device) { setDevice(device); }
 
     int getDevice()
